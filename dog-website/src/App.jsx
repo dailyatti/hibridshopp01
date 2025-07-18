@@ -124,9 +124,9 @@ function App() {
 
   // Foglalt időpontok (példa adatok)
   const [bookedSlots, setBookedSlots] = useState({
-    '2025-07-19': ['9:00', '14:00', '18:00'],
-    '2025-07-20': ['11:00', '16:00'],
-    '2025-07-21': ['9:00', '11:00', '14:00', '16:00', '18:00']
+    '2025-07-19': ['8:00', '10:00', '14:00', '18:00', '21:00'],
+    '2025-07-20': ['9:00', '11:00', '16:00', '20:00'],
+    '2025-07-21': ['8:00', '11:00', '14:00', '16:00', '18:00', '22:00']
   });
 
   const [bookingForm, setBookingForm] = useState({
@@ -953,7 +953,7 @@ function App() {
                       value={bookingForm.preferred_time}
                       onChange={(e) => setBookingForm({...bookingForm, preferred_time: e.target.value})}
                     >
-                      {['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(time => {
+                                                      {['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'].map(time => {
                         const isBooked = bookedSlots[bookingForm.preferred_date]?.includes(time);
                         return (
                           <option 
