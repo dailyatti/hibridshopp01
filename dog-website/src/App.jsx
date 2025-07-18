@@ -60,6 +60,21 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [showBooking, selectedDog])
 
+  // Click outside to close modals
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showBooking && event.target.classList.contains('modal-overlay')) {
+        setShowBooking(false)
+      }
+      if (selectedDog && event.target.classList.contains('modal-overlay')) {
+        setSelectedDog(null)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showBooking, selectedDog])
+
   const handleBookingSubmit = async (formData) => {
     try {
       const response = await fetch('/api/bookings', {
@@ -665,7 +680,7 @@ function App() {
                     className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >
                     <MessageCircle className="w-6 h-6" />
-                    <span className="text-lg font-semibold">WhatsApp üzenet küldése</span>
+                    <span className="text-lg font-semibold">Hívás Most!</span>
                   </a>
                 </div>
               </div>
@@ -686,7 +701,7 @@ function App() {
                     onClick={() => setShowBooking(true)}
                   >
                     <Calendar className="w-5 h-5 mr-3" />
-                    Látogatás Időpontja
+                    Időpont Foglalása
                   </Button>
                 </CardContent>
               </Card>
@@ -736,7 +751,7 @@ function App() {
 
       {/* Dog Detail Modal */}
       {selectedDog && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-overlay">
           <Card className="max-w-5xl w-full max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-3xl shadow-2xl">
             <CardHeader className="p-8">
               <div className="flex justify-between items-start">
@@ -749,9 +764,10 @@ function App() {
                 <Button 
                   variant="outline" 
                   onClick={() => setSelectedDog(null)}
-                  className="rounded-xl p-3 hover:bg-gray-100 transition-colors duration-300"
+                  className="rounded-xl p-3 hover:bg-red-50 hover:border-red-300 transition-colors duration-300 border-2"
+                  title="Bezárás"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-6 h-6 text-gray-600 hover:text-red-600" />
                 </Button>
               </div>
             </CardHeader>
@@ -839,7 +855,7 @@ function App() {
                   }}
                 >
                   <Calendar className="w-5 h-5 mr-3" />
-                  Látogatás Foglalása
+                  Időpont Foglalása
                 </Button>
                 <Button 
                   variant="outline" 
@@ -847,7 +863,7 @@ function App() {
                   onClick={() => window.open('tel:+3670217885', '_self')}
                 >
                   <Phone className="w-5 h-5 mr-3" />
-                  Hívás Most
+                  Hívás Most!
                 </Button>
               </div>
             </CardContent>
@@ -857,7 +873,7 @@ function App() {
 
       {/* Booking Modal */}
       {showBooking && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-overlay">
           <Card className="max-w-lg w-full bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-3xl shadow-2xl">
             <CardHeader className="p-8">
               <div className="flex justify-between items-start">
@@ -870,9 +886,10 @@ function App() {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowBooking(false)}
-                  className="rounded-xl p-3 hover:bg-gray-100 transition-colors duration-300"
+                  className="rounded-xl p-3 hover:bg-red-50 hover:border-red-300 transition-colors duration-300 border-2"
+                  title="Bezárás"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6 text-gray-600 hover:text-red-600" />
                 </Button>
               </div>
             </CardHeader>
