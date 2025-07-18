@@ -660,16 +660,7 @@ function App() {
                     )}
                   </div>
                 ))}
-                <div className="flex items-center space-x-4 group">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center shadow-lg group-hover:shadow-xl transform group-hover:scale-110 transition-all duration-300">
-                    <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
-                    </svg>
-                  </div>
-                  <a href="https://www.tiktok.com/@maltipoo.kecskemt" className="text-gray-700 hover:text-orange-600 transition-colors duration-300 text-lg font-medium">
-                    @maltipoo.kecskemt
-                  </a>
-                </div>
+
                 
                 {/* WhatsApp gomb */}
                 <div className="mt-8">
@@ -850,6 +841,11 @@ function App() {
                 <Button 
                   className="flex-1 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 rounded-xl py-4 text-lg"
                   onClick={() => {
+                    setBookingForm({
+                      ...bookingForm,
+                      dog_id: selectedDog.id,
+                      dog_name: selectedDog.name
+                    })
                     setSelectedDog(null)
                     setShowBooking(true)
                   }}
@@ -873,83 +869,110 @@ function App() {
 
       {/* Booking Modal */}
       {showBooking && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-overlay">
-          <Card className="max-w-lg w-full bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-3xl shadow-2xl">
-            <CardHeader className="p-8">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 modal-overlay">
+          <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            {/* Header with X button */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200/50 rounded-t-2xl sm:rounded-t-3xl p-4 sm:p-6">
               <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl font-bold text-gray-800">Időpont Foglalás</CardTitle>
-                  <CardDescription className="text-gray-600 text-lg">
+                <div className="flex-1">
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">Időpont Foglalás</CardTitle>
+                  <CardDescription className="text-sm sm:text-base text-gray-600">
                     Foglaljon időpontot kiskutyáink megtekintésére
                   </CardDescription>
                 </div>
                 <Button 
                   variant="outline" 
                   onClick={() => setShowBooking(false)}
-                  className="rounded-xl p-3 hover:bg-red-50 hover:border-red-300 transition-colors duration-300 border-2"
+                  className="rounded-full p-2 sm:p-3 hover:bg-red-50 hover:border-red-300 transition-colors duration-300 border-2 ml-4 flex-shrink-0"
                   title="Bezárás"
                 >
-                  <X className="w-6 h-6 text-gray-600 hover:text-red-600" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-red-600" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="p-8 pt-0">
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">Kívánt Dátum</label>
-                  <input 
-                    type="date" 
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    min={new Date().toISOString().split('T')[0]}
-                    value={bookingForm.preferred_date}
-                    onChange={(e) => setBookingForm({...bookingForm, preferred_date: e.target.value})}
-                  />
+            </div>
+
+            {/* Content */}
+            <CardContent className="p-4 sm:p-6">
+              <div className="space-y-4 sm:space-y-6">
+                {/* Selected Dog Info */}
+                {bookingForm.dog_name && (
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-3 sm:p-4">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                        <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-semibold text-orange-700 mb-1">Kiválasztott kiskutya:</p>
+                        <p className="text-sm sm:text-lg font-bold text-orange-800 truncate">{bookingForm.dog_name}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Form Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Kívánt Dátum</label>
+                    <input 
+                      type="date" 
+                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      min={new Date().toISOString().split('T')[0]}
+                      value={bookingForm.preferred_date}
+                      onChange={(e) => setBookingForm({...bookingForm, preferred_date: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Kívánt Időpont</label>
+                    <select 
+                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      value={bookingForm.preferred_time}
+                      onChange={(e) => setBookingForm({...bookingForm, preferred_time: e.target.value})}
+                    >
+                      <option value="9:00">9:00</option>
+                      <option value="11:00">11:00</option>
+                      <option value="14:00">14:00</option>
+                      <option value="16:00">16:00</option>
+                      <option value="18:00">18:00</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Az Ön Neve</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      placeholder="Adja meg a nevét"
+                      value={bookingForm.name}
+                      onChange={(e) => setBookingForm({...bookingForm, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Telefonszám</label>
+                    <input 
+                      type="tel" 
+                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      placeholder="Adja meg a telefonszámát"
+                      value={bookingForm.phone}
+                      onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">Kívánt Időpont</label>
-                  <select 
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    value={bookingForm.preferred_time}
-                    onChange={(e) => setBookingForm({...bookingForm, preferred_time: e.target.value})}
-                  >
-                    <option value="9:00">9:00</option>
-                    <option value="11:00">11:00</option>
-                    <option value="14:00">14:00</option>
-                    <option value="16:00">16:00</option>
-                    <option value="18:00">18:00</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">Az Ön Neve</label>
-                  <input 
-                    type="text" 
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Adja meg a nevét"
-                    value={bookingForm.name}
-                    onChange={(e) => setBookingForm({...bookingForm, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">Telefonszám</label>
-                  <input 
-                    type="tel" 
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Adja meg a telefonszámát"
-                    value={bookingForm.phone}
-                    onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">Üzenet (Opcionális)</label>
+                  <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Üzenet (Opcionális)</label>
                   <textarea 
-                    className="w-full p-4 border border-gray-300 rounded-xl h-24 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none"
+                    className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl h-20 sm:h-24 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none text-sm sm:text-base"
                     placeholder="Bármilyen különleges kérés vagy kérdés?"
                     value={bookingForm.message}
                     onChange={(e) => setBookingForm({...bookingForm, message: e.target.value})}
                   />
                 </div>
+
+                {/* Submit Button */}
                 <Button 
-                  className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 rounded-xl py-4 text-lg"
+                  className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 rounded-xl py-3 sm:py-4 text-sm sm:text-lg font-semibold"
                   onClick={() => {
                     const formData = {
                       ...bookingForm,
@@ -959,10 +982,12 @@ function App() {
                     handleBookingSubmit(formData);
                   }}
                 >
-                  <Calendar className="w-5 h-5 mr-3" />
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                   Időpont Megerősítése
                 </Button>
-                <p className="text-sm text-gray-500 text-center leading-relaxed">
+
+                {/* Info Text */}
+                <p className="text-xs sm:text-sm text-gray-500 text-center leading-relaxed px-2">
                   24 órán belül felvesszük Önnel a kapcsolatot az időpont megerősítéséhez
                 </p>
               </div>
