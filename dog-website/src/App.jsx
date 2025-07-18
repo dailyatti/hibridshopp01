@@ -671,7 +671,7 @@ function App() {
                     className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >
                     <MessageCircle className="w-6 h-6" />
-                    <span className="text-lg font-semibold">Hívás Most!</span>
+                    <span className="text-lg font-semibold">Időpont Foglalása</span>
                   </a>
                 </div>
               </div>
@@ -867,55 +867,58 @@ function App() {
         </div>
       )}
 
-      {/* Booking Modal */}
+      {/* Booking Modal - Compact Professional Design */}
       {showBooking && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 modal-overlay">
-          <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header with X button */}
-            <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200/50 rounded-t-2xl sm:rounded-t-3xl p-4 sm:p-6">
-              <div className="flex justify-between items-start">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] max-h-[95vh] overflow-y-auto animate-in zoom-in-95 duration-300 transform">
+            {/* Compact Header with Gradient */}
+            <div className="sticky top-0 relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 p-4 sm:p-6 rounded-t-2xl z-10">
+              <div className="absolute inset-0 bg-black/10 rounded-t-2xl"></div>
+              <div className="relative flex justify-between items-start">
                 <div className="flex-1">
-                  <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">Időpont Foglalás</CardTitle>
-                  <CardDescription className="text-sm sm:text-base text-gray-600">
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-white mb-1 drop-shadow-lg">
+                    Időpont Foglalása
+                  </CardTitle>
+                  <CardDescription className="text-orange-100 text-sm sm:text-base font-medium">
                     Foglaljon időpontot kiskutyáink megtekintésére
                   </CardDescription>
                 </div>
                 <Button 
                   variant="outline" 
                   onClick={() => setShowBooking(false)}
-                  className="rounded-full p-2 sm:p-3 hover:bg-red-50 hover:border-red-300 transition-colors duration-300 border-2 ml-4 flex-shrink-0"
+                  className="rounded-full p-2 sm:p-3 hover:bg-white/20 hover:border-white/30 transition-all duration-300 border-2 border-white/30 ml-3 flex-shrink-0 backdrop-blur-sm"
                   title="Bezárás"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-red-600" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </Button>
               </div>
             </div>
 
-            {/* Content */}
-            <CardContent className="p-4 sm:p-6">
+            {/* Compact Content */}
+            <CardContent className="p-4 sm:p-6 bg-gradient-to-b from-gray-50 to-white">
               <div className="space-y-4 sm:space-y-6">
-                {/* Selected Dog Info */}
+                {/* Compact Selected Dog Info */}
                 {bookingForm.dog_name && (
-                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-3 sm:p-4">
+                  <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 border border-orange-200 rounded-xl p-3 sm:p-4 shadow-md">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
                         <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs sm:text-sm font-semibold text-orange-700 mb-1">Kiválasztott kiskutya:</p>
-                        <p className="text-sm sm:text-lg font-bold text-orange-800 truncate">{bookingForm.dog_name}</p>
+                        <p className="text-xs sm:text-sm font-semibold text-orange-700 mb-0.5">Kiválasztott kiskutya:</p>
+                        <p className="text-sm sm:text-base font-bold text-orange-800 truncate">{bookingForm.dog_name}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Form Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="sm:col-span-2">
+                {/* Compact Form Fields - 2x2 Grid */}
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="col-span-2">
                     <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Kívánt Dátum</label>
                     <input 
                       type="date" 
-                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base bg-white shadow-sm hover:shadow-md"
                       min={new Date().toISOString().split('T')[0]}
                       value={bookingForm.preferred_date}
                       onChange={(e) => setBookingForm({...bookingForm, preferred_date: e.target.value})}
@@ -925,7 +928,7 @@ function App() {
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Kívánt Időpont</label>
                     <select 
-                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base bg-white shadow-sm hover:shadow-md"
                       value={bookingForm.preferred_time}
                       onChange={(e) => setBookingForm({...bookingForm, preferred_time: e.target.value})}
                     >
@@ -941,18 +944,18 @@ function App() {
                     <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Az Ön Neve</label>
                     <input 
                       type="text" 
-                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base bg-white shadow-sm hover:shadow-md"
                       placeholder="Adja meg a nevét"
                       value={bookingForm.name}
                       onChange={(e) => setBookingForm({...bookingForm, name: e.target.value})}
                     />
                   </div>
                   
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Telefonszám</label>
                     <input 
                       type="tel" 
-                      className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base"
+                      className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 text-sm sm:text-base bg-white shadow-sm hover:shadow-md"
                       placeholder="Adja meg a telefonszámát"
                       value={bookingForm.phone}
                       onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
@@ -963,16 +966,16 @@ function App() {
                 <div>
                   <label className="block text-xs sm:text-sm font-semibold mb-2 text-gray-700">Üzenet (Opcionális)</label>
                   <textarea 
-                    className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl h-20 sm:h-24 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg h-16 sm:h-20 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 resize-none text-sm sm:text-base bg-white shadow-sm hover:shadow-md"
                     placeholder="Bármilyen különleges kérés vagy kérdés?"
                     value={bookingForm.message}
                     onChange={(e) => setBookingForm({...bookingForm, message: e.target.value})}
                   />
                 </div>
 
-                {/* Submit Button */}
+                {/* Compact Submit Button */}
                 <Button 
-                  className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 rounded-xl py-3 sm:py-4 text-sm sm:text-lg font-semibold"
+                  className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white shadow-[0_8px_20px_-5px_rgba(251,146,60,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(251,146,60,0.6)] transform hover:scale-[1.02] transition-all duration-300 rounded-xl py-3 sm:py-4 text-base sm:text-lg font-bold border-0"
                   onClick={() => {
                     const formData = {
                       ...bookingForm,
@@ -986,10 +989,12 @@ function App() {
                   Időpont Megerősítése
                 </Button>
 
-                {/* Info Text */}
-                <p className="text-xs sm:text-sm text-gray-500 text-center leading-relaxed px-2">
-                  24 órán belül felvesszük Önnel a kapcsolatot az időpont megerősítéséhez
-                </p>
+                {/* Compact Info Text */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                  <p className="text-xs sm:text-sm text-blue-700 font-medium">
+                    24 órán belül felvesszük Önnel a kapcsolatot az időpont megerősítéséhez
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
