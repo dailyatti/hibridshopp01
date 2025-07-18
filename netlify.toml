@@ -1,18 +1,7 @@
 [build]
-  base = "dog-website"
-  publish = "dist"
-  command = "npm run build"
-
-[build.environment]
-  NODE_VERSION = "18"
+  publish = "."
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
-
-[dev]
-  base = "dog-website"
-  command = "npm run dev"
-  port = 5173
-  publish = "dist" 
+  status = 200 
