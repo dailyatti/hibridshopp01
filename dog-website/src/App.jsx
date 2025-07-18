@@ -466,7 +466,7 @@ function App() {
 
             {/* CTA Buttons */}
             <div className="hidden lg:flex items-center space-x-4">
-              {isAdmin && (
+              {isAdmin ? (
                 <Button 
                   variant="outline"
                   onClick={() => setShowAdminPanel(true)}
@@ -474,6 +474,15 @@ function App() {
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Admin Panel
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowAdminLogin(true)}
+                  className="border-2 border-purple-500 hover:bg-purple-50 text-purple-600 hover:text-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-3"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Admin Bejelentkezés
                 </Button>
               )}
               <Button 
