@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
-import { Phone, Mail, Instagram, Clock, MapPin, Heart, Star, Calendar, Award, Shield, Users, ChevronRight, ChevronDown, Menu, X, MessageCircle } from 'lucide-react'
+import { Phone, Mail, Instagram, Clock, MapPin, Heart, Star, Calendar, Award, Shield, Users, ChevronRight, ChevronDown, Menu, X, MessageCircle, Settings, Plus, Edit, Trash2, LogOut, LogIn, Eye, EyeOff } from 'lucide-react'
 import './App.css'
 
 // Import dog images
@@ -18,6 +18,17 @@ function App() {
   const [showBooking, setShowBooking] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  
+  // Admin state-ek
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showAdminLogin, setShowAdminLogin] = useState(false)
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const [adminUsername, setAdminUsername] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+  const [showAddDog, setShowAddDog] = useState(false)
+  const [showEditDog, setShowEditDog] = useState(false)
+  const [editingDog, setEditingDog] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   // Scroll spy effect
   useEffect(() => {
@@ -140,7 +151,108 @@ function App() {
     dog_name: null
   });
 
-  const availableDogs = [
+  // Admin funkciók
+  const handleAdminLogin = () => {
+    if (adminUsername === 'Hibridadmin8' && adminPassword === 'Hibridadmin9988@') {
+      setIsAdmin(true)
+      setShowAdminLogin(false)
+      setAdminUsername('')
+      setAdminPassword('')
+      alert('Sikeres bejelentkezés!')
+    } else {
+      alert('Hibás felhasználónév vagy jelszó!')
+    }
+  }
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false)
+    setShowAdminPanel(false)
+    alert('Kijelentkezve!')
+  }
+
+  const handleAddDog = (newDog) => {
+    const dogWithId = {
+      ...newDog,
+      id: Math.max(...availableDogs.map(dog => dog.id)) + 1
+    }
+    setAvailableDogs([...availableDogs, dogWithId])
+    setShowAddDog(false)
+    alert('Kutya sikeresen hozzáadva!')
+  }
+
+  const handleEditDog = (updatedDog) => {
+    setAvailableDogs(availableDogs.map(dog => 
+      dog.id === updatedDog.id ? updatedDog : dog
+    ))
+    setShowEditDog(false)
+    setEditingDog(null)
+    alert('Kutya sikeresen módosítva!')
+  }
+
+  const handleDeleteDog = (dogId) => {
+    if (confirm('Biztosan törölni szeretné ezt a kutyát?')) {
+      setAvailableDogs(availableDogs.filter(dog => dog.id !== dogId))
+      alert('Kutya sikeresen törölve!')
+    }
+  }
+
+  const handleCancelBooking = (date, time) => {
+    setBookedSlots(prev => ({
+      ...prev,
+      [date]: prev[date]?.filter(t => t !== time) || []
+    }))
+    alert(`Foglalás törölve: ${date} ${time}`)
+  }
+
+  // Képfeltöltés kezelése
+  const handleImageUpload = (event, setImageUrl) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageUrl(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Új kutya form state
+  const [newDogForm, setNewDogForm] = useState({
+    name: '',
+    breed: '',
+    age: '',
+    price: '',
+    image: dog1, // alapértelmezett kép
+    description: '',
+    gender: 'Fiú',
+    vaccinated: true,
+    microchipped: true,
+    weight: '',
+    parents: '',
+    temperament: '',
+    specialFeatures: [],
+    category: 'maltipoo'
+  });
+
+  // Szerkesztési form state
+  const [editDogForm, setEditDogForm] = useState({
+    name: '',
+    breed: '',
+    age: '',
+    price: '',
+    image: '',
+    description: '',
+    gender: 'Fiú',
+    vaccinated: true,
+    microchipped: true,
+    weight: '',
+    parents: '',
+    temperament: '',
+    specialFeatures: [],
+    category: 'maltipoo'
+  });
+
+  const [availableDogs, setAvailableDogs] = useState([
     {
       id: 1,
       name: "Carlos",
@@ -243,7 +355,7 @@ function App() {
       specialFeatures: ["Nagyon aktív", "Társaságkedvelő", "Vidám természet", "Kiváló játszótárs"],
       category: "maltipoo"
     }
-  ]
+  ]);
 
   const breeds = [
     {
@@ -354,6 +466,16 @@ function App() {
 
             {/* CTA Buttons */}
             <div className="hidden lg:flex items-center space-x-4">
+              {isAdmin && (
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowAdminPanel(true)}
+                  className="border-2 border-purple-500 hover:bg-purple-50 text-purple-600 hover:text-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-3"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Button>
+              )}
               <Button 
                 variant="outline"
                 onClick={() => window.open('tel:+3670217885', '_self')}
@@ -412,6 +534,17 @@ function App() {
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   Időpont Foglalás
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setShowAdminLogin(true)
+                    setMobileMenuOpen(false)
+                  }}
+                  className="mt-2 border-2 border-purple-500 hover:bg-purple-50 text-purple-600 hover:text-purple-700 rounded-xl"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin Bejelentkezés
                 </Button>
               </nav>
             </div>
@@ -888,6 +1021,205 @@ function App() {
         </div>
       )}
 
+      {/* Admin Login Modal */}
+      {showAdminLogin && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-md bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">Admin Bejelentkezés</CardTitle>
+                  <CardDescription className="text-purple-100">Adja meg az admin jelszót</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAdminLogin(false)}
+                  className="rounded-full p-2 hover:bg-white/20 hover:border-white/30 transition-all duration-300 border-2 border-white/30"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </Button>
+              </div>
+            </div>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Felhasználónév</label>
+                  <input 
+                    type="text"
+                    className="w-full p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300"
+                    placeholder="Adja meg a felhasználónevet"
+                    value={adminUsername}
+                    onChange={(e) => setAdminUsername(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                  />
+                </div>
+                <div className="relative">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Jelszó</label>
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"}
+                      className="w-full p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 pr-12"
+                      placeholder="Adja meg a jelszót"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl py-4 text-lg font-bold"
+                  onClick={handleAdminLogin}
+                >
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Bejelentkezés
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Admin Panel Modal */}
+      {showAdminPanel && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-6xl max-h-[90vh] bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">Admin Panel</CardTitle>
+                  <CardDescription className="text-purple-100">Kutyák és foglalások kezelése</CardDescription>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowAddDog(true)}
+                    className="border-white/30 text-white hover:bg-white/20"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Új Kutya
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleAdminLogout}
+                    className="border-white/30 text-white hover:bg-white/20"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Kijelentkezés
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowAdminPanel(false)}
+                    className="border-white/30 text-white hover:bg-white/20"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Kutyák kezelése */}
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <Heart className="w-5 h-5 mr-2 text-purple-500" />
+                    Kutyák Kezelése
+                  </h3>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {availableDogs.map(dog => (
+                      <div key={dog.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <img src={dog.image} alt={dog.name} className="w-12 h-12 rounded-lg object-cover" />
+                            <div>
+                              <h4 className="font-semibold text-gray-800">{dog.name}</h4>
+                              <p className="text-sm text-gray-600">{dog.breed} - {dog.price}</p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingDog(dog)
+                                setEditDogForm({
+                                  name: dog.name,
+                                  breed: dog.breed,
+                                  age: dog.age,
+                                  price: dog.price,
+                                  image: dog.image,
+                                  description: dog.description,
+                                  gender: dog.gender,
+                                  vaccinated: dog.vaccinated,
+                                  microchipped: dog.microchipped,
+                                  weight: dog.weight,
+                                  parents: dog.parents,
+                                  temperament: dog.temperament,
+                                  specialFeatures: dog.specialFeatures,
+                                  category: dog.category
+                                })
+                                setShowEditDog(true)
+                              }}
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                            >
+                              <Edit className="w-3 h-3 mr-1" />
+                              Szerkesztés
+                            </Button>
+                            <Button 
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteDog(dog.id)}
+                              className="border-red-300 text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Törlés
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Foglalások kezelése */}
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <Calendar className="w-5 h-5 mr-2 text-purple-500" />
+                    Foglalások Kezelése
+                  </h3>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {Object.entries(bookedSlots).map(([date, times]) => (
+                      <div key={date} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h4 className="font-semibold text-gray-800 mb-2">{formatDateForInput(date)}</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {times.map(time => (
+                            <Button 
+                              key={time}
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCancelBooking(date, time)}
+                              className="border-red-300 text-red-600 hover:bg-red-50"
+                            >
+                              {time} <X className="w-3 h-3 ml-1" />
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Booking Modal - Compact Professional Design */}
       {showBooking && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50 modal-overlay animate-in fade-in duration-300">
@@ -1038,6 +1370,480 @@ function App() {
                 </div>
               </div>
             </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Új Kutya Hozzáadása Modal */}
+      {showAddDog && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-4xl max-h-[90vh] bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">Új Kutya Hozzáadása</CardTitle>
+                  <CardDescription className="text-green-100">Adja meg az új kutya adatait</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAddDog(false)}
+                  className="border-white/30 text-white hover:bg-white/20"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Bal oldal - Alapadatok */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Név</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                      placeholder="Kutya neve"
+                      value={newDogForm.name}
+                      onChange={(e) => setNewDogForm({...newDogForm, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Fajta</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                      placeholder="pl. Maltipoo"
+                      value={newDogForm.breed}
+                      onChange={(e) => setNewDogForm({...newDogForm, breed: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Életkor</label>
+                      <input 
+                        type="text"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                        placeholder="pl. 9 hetes"
+                        value={newDogForm.age}
+                        onChange={(e) => setNewDogForm({...newDogForm, age: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Ár</label>
+                      <input 
+                        type="text"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                        placeholder="pl. 350.000 Ft"
+                        value={newDogForm.price}
+                        onChange={(e) => setNewDogForm({...newDogForm, price: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Nem</label>
+                      <select 
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                        value={newDogForm.gender}
+                        onChange={(e) => setNewDogForm({...newDogForm, gender: e.target.value})}
+                      >
+                        <option value="Fiú">Fiú</option>
+                        <option value="Szuka">Szuka</option>
+                        <option value="Kan">Kan</option>
+                        <option value="Vegyes">Vegyes</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Súly</label>
+                      <input 
+                        type="text"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                        placeholder="pl. 2.5 kg"
+                        value={newDogForm.weight}
+                        onChange={(e) => setNewDogForm({...newDogForm, weight: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Szülők</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                      placeholder="pl. Máltai selyemkutya anya × Toy uszkár apa"
+                      value={newDogForm.parents}
+                      onChange={(e) => setNewDogForm({...newDogForm, parents: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Temperamentum</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                      placeholder="pl. Játékos, szeretetteljes, intelligens"
+                      value={newDogForm.temperament}
+                      onChange={(e) => setNewDogForm({...newDogForm, temperament: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Kategória</label>
+                    <select 
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                      value={newDogForm.category}
+                      onChange={(e) => setNewDogForm({...newDogForm, category: e.target.value})}
+                    >
+                      <option value="maltipoo">Maltipoo</option>
+                      <option value="cavapoo">Cavapoo</option>
+                      <option value="special">Különleges</option>
+                    </select>
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox"
+                        checked={newDogForm.vaccinated}
+                        onChange={(e) => setNewDogForm({...newDogForm, vaccinated: e.target.checked})}
+                        className="w-4 h-4 text-green-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Oltott</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox"
+                        checked={newDogForm.microchipped}
+                        onChange={(e) => setNewDogForm({...newDogForm, microchipped: e.target.checked})}
+                        className="w-4 h-4 text-green-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Chipelt</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Jobb oldal - Kép és leírás */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Kép</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-500 transition-colors">
+                      <input 
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, (url) => setNewDogForm({...newDogForm, image: url}))}
+                        className="hidden"
+                        id="new-dog-image"
+                      />
+                      <label htmlFor="new-dog-image" className="cursor-pointer">
+                        <div className="w-32 h-32 mx-auto mb-2 bg-gray-100 rounded-lg flex items-center justify-center">
+                          {newDogForm.image ? (
+                            <img src={newDogForm.image} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                          ) : (
+                            <Plus className="w-8 h-8 text-gray-400" />
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600">Kattintson a kép feltöltéséhez</p>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Leírás</label>
+                    <textarea 
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg h-32 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 resize-none"
+                      placeholder="Részletes leírás a kutyáról..."
+                      value={newDogForm.description}
+                      onChange={(e) => setNewDogForm({...newDogForm, description: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Különleges jellemzők (vesszővel elválasztva)</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                      placeholder="pl. Hipoallergén szőrzet, Könnyen tanítható, Gyerekbarát"
+                      value={newDogForm.specialFeatures.join(', ')}
+                      onChange={(e) => setNewDogForm({...newDogForm, specialFeatures: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-200">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowAddDog(false)}
+                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                  Mégse
+                </Button>
+                <Button 
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  onClick={() => {
+                    if (newDogForm.name && newDogForm.breed && newDogForm.price) {
+                      handleAddDog(newDogForm);
+                      setNewDogForm({
+                        name: '',
+                        breed: '',
+                        age: '',
+                        price: '',
+                        image: dog1,
+                        description: '',
+                        gender: 'Fiú',
+                        vaccinated: true,
+                        microchipped: true,
+                        weight: '',
+                        parents: '',
+                        temperament: '',
+                        specialFeatures: [],
+                        category: 'maltipoo'
+                      });
+                    } else {
+                      alert('Kérjük töltse ki a kötelező mezőket!');
+                    }
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Kutya Hozzáadása
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Kutya Szerkesztése Modal */}
+      {showEditDog && editingDog && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-4xl max-h-[90vh] bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">Kutya Szerkesztése</CardTitle>
+                  <CardDescription className="text-blue-100">Módosítsa a kutya adatait</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowEditDog(false);
+                    setEditingDog(null);
+                  }}
+                  className="border-white/30 text-white hover:bg-white/20"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Bal oldal - Alapadatok */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Név</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                      placeholder="Kutya neve"
+                      value={editDogForm.name}
+                      onChange={(e) => setEditDogForm({...editDogForm, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Fajta</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                      placeholder="pl. Maltipoo"
+                      value={editDogForm.breed}
+                      onChange={(e) => setEditDogForm({...editDogForm, breed: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Életkor</label>
+                      <input 
+                        type="text"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                        placeholder="pl. 9 hetes"
+                        value={editDogForm.age}
+                        onChange={(e) => setEditDogForm({...editDogForm, age: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Ár</label>
+                      <input 
+                        type="text"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                        placeholder="pl. 350.000 Ft"
+                        value={editDogForm.price}
+                        onChange={(e) => setEditDogForm({...editDogForm, price: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Nem</label>
+                      <select 
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                        value={editDogForm.gender}
+                        onChange={(e) => setEditDogForm({...editDogForm, gender: e.target.value})}
+                      >
+                        <option value="Fiú">Fiú</option>
+                        <option value="Szuka">Szuka</option>
+                        <option value="Kan">Kan</option>
+                        <option value="Vegyes">Vegyes</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2 text-gray-700">Súly</label>
+                      <input 
+                        type="text"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                        placeholder="pl. 2.5 kg"
+                        value={editDogForm.weight}
+                        onChange={(e) => setEditDogForm({...editDogForm, weight: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Szülők</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                      placeholder="pl. Máltai selyemkutya anya × Toy uszkár apa"
+                      value={editDogForm.parents}
+                      onChange={(e) => setEditDogForm({...editDogForm, parents: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Temperamentum</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                      placeholder="pl. Játékos, szeretetteljes, intelligens"
+                      value={editDogForm.temperament}
+                      onChange={(e) => setEditDogForm({...editDogForm, temperament: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Kategória</label>
+                    <select 
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                      value={editDogForm.category}
+                      onChange={(e) => setEditDogForm({...editDogForm, category: e.target.value})}
+                    >
+                      <option value="maltipoo">Maltipoo</option>
+                      <option value="cavapoo">Cavapoo</option>
+                      <option value="special">Különleges</option>
+                    </select>
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox"
+                        checked={editDogForm.vaccinated}
+                        onChange={(e) => setEditDogForm({...editDogForm, vaccinated: e.target.checked})}
+                        className="w-4 h-4 text-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Oltott</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox"
+                        checked={editDogForm.microchipped}
+                        onChange={(e) => setEditDogForm({...editDogForm, microchipped: e.target.checked})}
+                        className="w-4 h-4 text-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Chipelt</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Jobb oldal - Kép és leírás */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Kép</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
+                      <input 
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, (url) => setEditDogForm({...editDogForm, image: url}))}
+                        className="hidden"
+                        id="edit-dog-image"
+                      />
+                      <label htmlFor="edit-dog-image" className="cursor-pointer">
+                        <div className="w-32 h-32 mx-auto mb-2 bg-gray-100 rounded-lg flex items-center justify-center">
+                          {editDogForm.image ? (
+                            <img src={editDogForm.image} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                          ) : (
+                            <Plus className="w-8 h-8 text-gray-400" />
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600">Kattintson a kép feltöltéséhez</p>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Leírás</label>
+                    <textarea 
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg h-32 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 resize-none"
+                      placeholder="Részletes leírás a kutyáról..."
+                      value={editDogForm.description}
+                      onChange={(e) => setEditDogForm({...editDogForm, description: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Különleges jellemzők (vesszővel elválasztva)</label>
+                    <input 
+                      type="text"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                      placeholder="pl. Hipoallergén szőrzet, Könnyen tanítható, Gyerekbarát"
+                      value={editDogForm.specialFeatures.join(', ')}
+                      onChange={(e) => setEditDogForm({...editDogForm, specialFeatures: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-200">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditDog(false);
+                    setEditingDog(null);
+                  }}
+                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                  Mégse
+                </Button>
+                <Button 
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  onClick={() => {
+                    if (editDogForm.name && editDogForm.breed && editDogForm.price) {
+                      handleEditDog({...editDogForm, id: editingDog.id});
+                    } else {
+                      alert('Kérjük töltse ki a kötelező mezőket!');
+                    }
+                  }}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Módosítások Mentése
+                </Button>
+              </div>
+            </div>
           </Card>
         </div>
       )}
