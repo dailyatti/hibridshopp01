@@ -53,6 +53,10 @@ npm run dev
 
 A frontend elérhető lesz: http://localhost:5173
 
+### Online elérhetőség
+
+Az oldal online elérhető: **https://dailyatti.github.io/hibridshopp/**
+
 ### Backend (FastAPI)
 
 ```bash
