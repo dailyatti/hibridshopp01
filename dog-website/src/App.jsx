@@ -77,6 +77,13 @@ function App() {
 
   const handleBookingSubmit = async (formData) => {
     try {
+      // Ellenőrizzük, hogy az időpont foglalt-e
+      const isBooked = bookedSlots[formData.preferred_date]?.includes(formData.preferred_time);
+      if (isBooked) {
+        alert('Ez az időpont már foglalt! Kérjük válasszon másik időpontot.');
+        return;
+      }
+
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
@@ -87,6 +94,13 @@ function App() {
       
       if (response.ok) {
         const result = await response.json();
+        
+        // Hozzáadjuk az új foglalást a listához
+        setBookedSlots(prev => ({
+          ...prev,
+          [formData.preferred_date]: [...(prev[formData.preferred_date] || []), formData.preferred_time]
+        }));
+        
         alert('Időpont sikeresen lefoglalva! 24 órán belül felvesszük Önnel a kapcsolatot a megerősítéshez.');
         setShowBooking(false);
         setBookingForm({
@@ -107,6 +121,13 @@ function App() {
       alert('Hiba történt az időpont foglalás során: ' + error.message);
     }
   };
+
+  // Foglalt időpontok (példa adatok)
+  const [bookedSlots, setBookedSlots] = useState({
+    '2025-07-19': ['9:00', '14:00', '18:00'],
+    '2025-07-20': ['11:00', '16:00'],
+    '2025-07-21': ['9:00', '11:00', '14:00', '16:00', '18:00']
+  });
 
   const [bookingForm, setBookingForm] = useState({
     name: '',
@@ -932,12 +953,32 @@ function App() {
                       value={bookingForm.preferred_time}
                       onChange={(e) => setBookingForm({...bookingForm, preferred_time: e.target.value})}
                     >
-                      <option value="9:00">9:00</option>
-                      <option value="11:00">11:00</option>
-                      <option value="14:00">14:00</option>
-                      <option value="16:00">16:00</option>
-                      <option value="18:00">18:00</option>
+                      {['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(time => {
+                        const isBooked = bookedSlots[bookingForm.preferred_date]?.includes(time);
+                        return (
+                          <option 
+                            key={time} 
+                            value={time}
+                            disabled={isBooked}
+                            className={isBooked ? 'text-red-500 bg-red-50' : ''}
+                          >
+                            {time} {isBooked ? '(Foglalt)' : ''}
+                          </option>
+                        );
+                      })}
                     </select>
+                    {bookingForm.preferred_date && bookedSlots[bookingForm.preferred_date]?.length > 0 && (
+                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-xs text-red-700 font-medium">Foglalt időpontok ezen a napon:</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {bookedSlots[bookingForm.preferred_date].map(time => (
+                            <span key={time} className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                              {time}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div>
