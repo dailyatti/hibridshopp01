@@ -593,25 +593,6 @@ function App() {
 
             {/* CTA Buttons */}
             <div className="hidden lg:flex items-center space-x-4">
-              {isAdmin ? (
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowAdminPanel(true)}
-                  className="border-2 border-purple-500 hover:bg-purple-50 text-purple-600 hover:text-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-3"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Admin Panel
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowAdminLogin(true)}
-                  className="border-2 border-purple-500 hover:bg-purple-50 text-purple-600 hover:text-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-3"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Admin Bejelentkezés
-                </Button>
-              )}
               <Button 
                 variant="outline"
                 onClick={() => window.open(`tel:${siteSettings.phoneNumber}`, '_self')}
@@ -671,17 +652,7 @@ function App() {
                   <Calendar className="w-4 h-4 mr-2" />
                   Időpont Foglalás
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    setShowAdminLogin(true)
-                    setMobileMenuOpen(false)
-                  }}
-                  className="mt-2 border-2 border-purple-500 hover:bg-purple-50 text-purple-600 hover:text-purple-700 rounded-xl"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Admin Bejelentkezés
-                </Button>
+
               </nav>
             </div>
           )}
@@ -998,11 +969,11 @@ function App() {
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <span className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                Hibrid Shopp
+                {siteSettings.siteTitle}
               </span>
             </div>
             <p className="text-gray-300 mb-8 text-lg max-w-2xl mx-auto">
-              Professzionális kutyatenyésztés szeretettel és gondossággal. Minden kiskutyánk családi környezetben nevelkedik.
+              {siteSettings.aboutText}
             </p>
           </div>
           
@@ -1021,8 +992,43 @@ function App() {
             </div>
           </div>
           
-          <div className="border-t border-gray-700 pt-8 text-center">
-            <p className="text-gray-400">© 2025 Hibrid Shopp. Minden jog fenntartva.</p>
+          <div className="border-t border-gray-700 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <p className="text-gray-400">{siteSettings.footerText}</p>
+              
+              {/* Admin gombok - csak admin számára látható */}
+              <div className="flex items-center space-x-3">
+                {isAdmin ? (
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowAdminPanel(true)}
+                    className="border-2 border-purple-500/50 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-2 text-sm"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Admin Panel
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowAdminLogin(true)}
+                    className="border-2 border-purple-500/50 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-2 text-sm"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Admin
+                  </Button>
+                )}
+                {isAdmin && (
+                  <Button 
+                    variant="outline"
+                    onClick={handleAdminLogout}
+                    className="border-2 border-red-500/50 hover:bg-red-500/20 text-red-300 hover:text-red-200 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-2 text-sm"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Kijelentkezés
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </footer>
