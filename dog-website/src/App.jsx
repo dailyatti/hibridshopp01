@@ -40,6 +40,8 @@ function App() {
   const [editingTextKey, setEditingTextKey] = useState('')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const [showGallery, setShowGallery] = useState(false)
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState(null)
 
   // Oldal beállítások
   const [siteSettings, setSiteSettings] = useState({
@@ -82,6 +84,16 @@ function App() {
   // Időpontok kezelése
   const [timeSlots, setTimeSlots] = useState([
     '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'
+  ])
+
+  // Galéria képek
+  const [galleryImages, setGalleryImages] = useState([
+    { id: 1, src: dog1, title: 'Carlos - Maltipoo', description: 'Gyönyörű vörös-barna göndör szőrzet' },
+    { id: 2, src: dog2, title: 'Joker - Maltipoo', description: 'Fehér-barna hosszú szőrzet' },
+    { id: 3, src: dog3, title: 'Charlie - Maltipoo', description: 'Krém-barna göndör szőrzet' },
+    { id: 4, src: dog4, title: 'Fanto - Cavapoo', description: 'Barna göndör szőrzet' },
+    { id: 5, src: dog5, title: 'Max és Buddy', description: 'Labrador és Maltipoo páros' },
+    { id: 6, src: dog6, title: 'Coco - Maltipoo', description: 'Vörös-barna göndör szőrzet' }
   ])
 
   // Statisztikák
@@ -559,6 +571,24 @@ function App() {
     }
   }
 
+  const handleAddGalleryImage = (newImage) => {
+    const imageWithId = {
+      ...newImage,
+      id: Math.max(...galleryImages.map(img => img.id)) + 1
+    }
+    setGalleryImages([...galleryImages, imageWithId])
+    setHasUnsavedChanges(true)
+    alert('Kép sikeresen hozzáadva a galériához!')
+  }
+
+  const handleDeleteGalleryImage = (imageId) => {
+    if (confirm('Biztosan törölni szeretné ezt a képet a galériából?')) {
+      setGalleryImages(galleryImages.filter(img => img.id !== imageId))
+      setHasUnsavedChanges(true)
+      alert('Kép sikeresen törölve a galériából!')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 relative overflow-x-hidden">
       {/* Animated background elements */}
@@ -878,22 +908,28 @@ function App() {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Tekintse meg kiskutyáinkat különböző pillanatokban és környezetekben.
             </p>
+            <Button 
+              onClick={() => setShowGallery(true)}
+              className="mt-8 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 rounded-xl px-8 py-4 text-lg"
+            >
+              <Eye className="w-5 h-5 mr-3" />
+              Teljes Galéria Megnyitása
+            </Button>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {availableDogs.map((dog, index) => (
-              <div key={dog.id} className="group cursor-pointer" onClick={() => setSelectedDog(dog)}>
+            {galleryImages.slice(0, 6).map((image, index) => (
+              <div key={image.id} className="group cursor-pointer" onClick={() => setSelectedGalleryImage(image)}>
                 <div className="relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
                   <img 
-                    src={dog.image} 
-                    alt={dog.name}
-                    className="w-full h-72 object-contain bg-gradient-to-br from-orange-50 to-amber-50 transition-transform duration-500 group-hover:scale-110"
+                    src={image.src} 
+                    alt={image.title}
+                    className="w-full h-72 object-cover bg-gradient-to-br from-orange-50 to-amber-50 transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <h4 className="text-2xl font-bold mb-2">{dog.name}</h4>
-                    <p className="text-lg opacity-90">{dog.breed} • {dog.age}</p>
-                    <p className="text-sm opacity-75 mt-2">{dog.temperament}</p>
+                    <h4 className="text-2xl font-bold mb-2">{image.title}</h4>
+                    <p className="text-sm opacity-75 mt-2">{image.description}</p>
                   </div>
                 </div>
               </div>
@@ -1332,6 +1368,7 @@ function App() {
                   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
                   { id: 'dogs', label: 'Kutyák', icon: '🐕' },
                   { id: 'bookings', label: 'Foglalások', icon: '📅' },
+                  { id: 'gallery', label: 'Galéria', icon: '🖼️' },
                   { id: 'settings', label: 'Beállítások', icon: '⚙️' },
                   { id: 'texts', label: 'Szövegek', icon: '📝' },
                   { id: 'times', label: 'Időpontok', icon: '🕐' }
@@ -1865,6 +1902,58 @@ function App() {
                         </div>
                       </CardContent>
                     </Card>
+                  </div>
+                </div>
+              )}
+
+              {/* Galéria Tab */}
+              {adminActiveTab === 'gallery' && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-800">Galéria Kezelése</h3>
+                    <Button 
+                      onClick={() => {
+                        // Itt nyitnánk meg egy új kép hozzáadás modalt
+                        const newImage = {
+                          title: 'Új Kép',
+                          description: 'Új kép leírása',
+                          src: dog1 // alapértelmezett kép
+                        }
+                        handleAddGalleryImage(newImage)
+                      }}
+                      className="bg-green-500 hover:bg-green-600"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Új Kép Hozzáadása
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {galleryImages.map((image) => (
+                      <Card key={image.id} className="overflow-hidden hover:shadow-lg transition-all duration-300">
+                        <div className="relative">
+                          <img 
+                            src={image.src} 
+                            alt={image.title}
+                            className="w-full h-48 object-cover"
+                          />
+                          <div className="absolute top-2 right-2">
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteGalleryImage(image.id)}
+                              className="bg-red-500 hover:bg-red-600 text-white border-red-500"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <h4 className="font-semibold text-gray-800 mb-2">{image.title}</h4>
+                          <p className="text-sm text-gray-600">{image.description}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               )}
@@ -2549,6 +2638,87 @@ function App() {
                 </Button>
               </div>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Teljes Galéria Modal */}
+      {showGallery && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-7xl max-h-[95vh] bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-3xl font-bold text-white">Teljes Galéria</CardTitle>
+                  <CardDescription className="text-orange-100">Kiskutyáink képei különböző pillanatokban</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowGallery(false)}
+                  className="border-white/30 text-white hover:bg-white/20"
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(95vh-200px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {galleryImages.map((image, index) => (
+                  <div key={image.id} className="group cursor-pointer" onClick={() => setSelectedGalleryImage(image)}>
+                    <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                      <img 
+                        src={image.src} 
+                        alt={image.title}
+                        className="w-full h-64 object-cover bg-gradient-to-br from-orange-50 to-amber-50 transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <h4 className="text-lg font-bold mb-1">{image.title}</h4>
+                        <p className="text-sm opacity-90">{image.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Galéria Kép Részletek Modal */}
+      {selectedGalleryImage && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="max-w-4xl w-full bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">{selectedGalleryImage.title}</CardTitle>
+                  <CardDescription className="text-orange-100">{selectedGalleryImage.description}</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedGalleryImage(null)}
+                  className="border-white/30 text-white hover:bg-white/20"
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </div>
+            </div>
+            
+            <CardContent className="p-6">
+              <div className="text-center">
+                <img 
+                  src={selectedGalleryImage.src} 
+                  alt={selectedGalleryImage.title}
+                  className="w-full max-h-96 object-contain bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl shadow-lg"
+                />
+                <div className="mt-6">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">{selectedGalleryImage.title}</h3>
+                  <p className="text-gray-600 text-lg">{selectedGalleryImage.description}</p>
+                </div>
+              </div>
+            </CardContent>
           </Card>
         </div>
       )}
