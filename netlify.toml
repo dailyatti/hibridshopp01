@@ -1,5 +1,5 @@
 [build]
-publish = "dist"
+publish = "dog-website/dist"
 command = "cd dog-website && npm run build"
 
 [[redirects]]
