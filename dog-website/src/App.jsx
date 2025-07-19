@@ -29,6 +29,68 @@ function App() {
   const [showEditDog, setShowEditDog] = useState(false)
   const [editingDog, setEditingDog] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
+  
+  // Új admin funkciók
+  const [adminActiveTab, setAdminActiveTab] = useState('dogs')
+  const [showSiteSettings, setShowSiteSettings] = useState(false)
+  const [showTextEditor, setShowTextEditor] = useState(false)
+  const [showBookingManager, setShowBookingManager] = useState(false)
+  const [showStatistics, setShowStatistics] = useState(false)
+  const [editingText, setEditingText] = useState('')
+  const [editingTextKey, setEditingTextKey] = useState('')
+
+  // Oldal beállítások
+  const [siteSettings, setSiteSettings] = useState({
+    siteTitle: 'Hibrid Shopp',
+    siteSubtitle: 'Prémium Kutyatenyésztés',
+    phoneNumber: '+3670217885',
+    email: 'info@hibridshopp.hu',
+    address: 'Budapest, Magyarország',
+    openingHours: 'Hétfő-Vasárnap: 9:00-18:00',
+    heroTitle: 'Találd meg a tökéletes társadat',
+    heroSubtitle: 'Professzionális kutyatenyésztés szeretettel és gondossággal. Maltipoo, Uszkár, Cavapoo és Goldendoodle fajtákra specializálódtunk.',
+    aboutText: 'Minden fajtánk gondosan kiválasztott szülőktől származik, garantálva az egészséget és a kiváló temperamentumot.',
+    contactText: 'Vegye fel velünk a kapcsolatot, hogy megtekintse kiskutyáinkat és foglaljon időpontot.',
+    footerText: '© 2024 Hibrid Shopp. Minden jog fenntartva.',
+    whatsappNumber: '+3670217885',
+    instagramHandle: '@hibridshopp',
+    facebookPage: 'hibridshopp'
+  })
+
+  // Szövegek kezelése
+  const [pageTexts, setPageTexts] = useState({
+    breedsTitle: 'Fajtáink',
+    breedsSubtitle: 'Minden fajtánk gondosan kiválasztott szülőktől származik, garantálva az egészséget és a kiváló temperamentumot.',
+    availableTitle: 'Eladó Kutyáink',
+    availableSubtitle: 'Minden kiskutyánk szeretettel nevelkedik családi környezetben, biztosítva a legjobb szocializációt.',
+    galleryTitle: 'Galéria',
+    gallerySubtitle: 'Nézd meg kiskutyáinkat akcióban és családi környezetben.',
+    contactTitle: 'Kapcsolat',
+    contactSubtitle: 'Vegye fel velünk a kapcsolatot és foglaljon időpontot kiskutyáink megtekintésére.',
+    bookingTitle: 'Időpont Foglalása',
+    bookingSubtitle: 'Foglaljon időpontot kiskutyáink megtekintésére',
+    bookingSuccess: 'Időpont sikeresen lefoglalva! 24 órán belül felvesszük Önnel a kapcsolatot a megerősítéshez.',
+    bookingError: 'Hiba történt az időpont foglalás során: ',
+    adminLoginTitle: 'Admin Bejelentkezés',
+    adminLoginSubtitle: 'Adja meg az admin jelszót',
+    adminPanelTitle: 'Admin Panel',
+    adminPanelSubtitle: 'Kutyák és foglalások kezelése'
+  })
+
+  // Időpontok kezelése
+  const [timeSlots, setTimeSlots] = useState([
+    '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'
+  ])
+
+  // Statisztikák
+  const [statistics, setStatistics] = useState({
+    totalDogs: 6,
+    availableDogs: 6,
+    totalBookings: 12,
+    activeBookings: 8,
+    monthlyVisitors: 1250,
+    conversionRate: 15.2
+  })
 
   // Scroll spy effect
   useEffect(() => {
@@ -112,7 +174,7 @@ function App() {
           [formData.preferred_date]: [...(prev[formData.preferred_date] || []), formData.preferred_time]
         }));
         
-        alert('Időpont sikeresen lefoglalva! 24 órán belül felvesszük Önnel a kapcsolatot a megerősítéshez.');
+        alert(pageTexts.bookingSuccess);
         setShowBooking(false);
         setBookingForm({
           name: '',
@@ -126,10 +188,10 @@ function App() {
         });
       } else {
         const error = await response.json();
-        alert('Hiba történt az időpont foglalás során: ' + error.message);
+        alert(pageTexts.bookingError + error.message);
       }
     } catch (error) {
-      alert('Hiba történt az időpont foglalás során: ' + error.message);
+      alert(pageTexts.bookingError + error.message);
     }
   };
 
@@ -177,6 +239,11 @@ function App() {
     }
     setAvailableDogs([...availableDogs, dogWithId])
     setShowAddDog(false)
+    setStatistics(prev => ({
+      ...prev,
+      totalDogs: prev.totalDogs + 1,
+      availableDogs: prev.availableDogs + 1
+    }))
     alert('Kutya sikeresen hozzáadva!')
   }
 
@@ -192,6 +259,11 @@ function App() {
   const handleDeleteDog = (dogId) => {
     if (confirm('Biztosan törölni szeretné ezt a kutyát?')) {
       setAvailableDogs(availableDogs.filter(dog => dog.id !== dogId))
+      setStatistics(prev => ({
+        ...prev,
+        totalDogs: prev.totalDogs - 1,
+        availableDogs: prev.availableDogs - 1
+      }))
       alert('Kutya sikeresen törölve!')
     }
   }
@@ -200,6 +272,10 @@ function App() {
     setBookedSlots(prev => ({
       ...prev,
       [date]: prev[date]?.filter(t => t !== time) || []
+    }))
+    setStatistics(prev => ({
+      ...prev,
+      activeBookings: prev.activeBookings - 1
     }))
     alert(`Foglalás törölve: ${date} ${time}`)
   }
@@ -404,6 +480,57 @@ function App() {
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   };
 
+  // Új admin funkciók
+  const handleUpdateSiteSettings = (newSettings) => {
+    setSiteSettings(newSettings)
+    setShowSiteSettings(false)
+    alert('Oldal beállítások sikeresen frissítve!')
+  }
+
+  const handleUpdatePageTexts = (newTexts) => {
+    setPageTexts(newTexts)
+    setShowTextEditor(false)
+    alert('Szövegek sikeresen frissítve!')
+  }
+
+  const handleAddTimeSlot = (time) => {
+    if (!timeSlots.includes(time)) {
+      setTimeSlots([...timeSlots, time].sort())
+      alert('Időpont sikeresen hozzáadva!')
+    } else {
+      alert('Ez az időpont már létezik!')
+    }
+  }
+
+  const handleRemoveTimeSlot = (time) => {
+    setTimeSlots(timeSlots.filter(t => t !== time))
+    alert('Időpont sikeresen eltávolítva!')
+  }
+
+  const handleEditText = (key, text) => {
+    setEditingTextKey(key)
+    setEditingText(text)
+    setShowTextEditor(true)
+  }
+
+  const handleSaveText = () => {
+    if (editingTextKey.startsWith('site')) {
+      setSiteSettings(prev => ({
+        ...prev,
+        [editingTextKey]: editingText
+      }))
+    } else {
+      setPageTexts(prev => ({
+        ...prev,
+        [editingTextKey]: editingText
+      }))
+    }
+    setShowTextEditor(false)
+    setEditingText('')
+    setEditingTextKey('')
+    alert('Szöveg sikeresen mentve!')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 relative overflow-x-hidden">
       {/* Animated background elements */}
@@ -426,9 +553,9 @@ function App() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                  Hibrid Shopp
+                  {siteSettings.siteTitle}
                 </h1>
-                <p className="text-sm text-gray-600 font-medium">Prémium Kutyatenyésztés</p>
+                <p className="text-sm text-gray-600 font-medium">{siteSettings.siteSubtitle}</p>
               </div>
             </div>
             
@@ -487,11 +614,11 @@ function App() {
               )}
               <Button 
                 variant="outline"
-                onClick={() => window.open('tel:+3670217885', '_self')}
+                onClick={() => window.open(`tel:${siteSettings.phoneNumber}`, '_self')}
                 className="border-2 border-green-500 hover:bg-green-50 text-green-600 hover:text-green-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-4 py-3"
               >
                 <Phone className="w-4 h-4 mr-2" />
-                06 70 217 885
+                {siteSettings.phoneNumber}
               </Button>
               <Button 
                 onClick={() => setShowBooking(true)}
@@ -526,13 +653,13 @@ function App() {
                 <Button 
                   variant="outline"
                   onClick={() => {
-                    window.open('tel:+3670217885', '_self')
+                    window.open(`tel:${siteSettings.phoneNumber}`, '_self')
                     setMobileMenuOpen(false)
                   }}
                   className="mt-4 border-2 border-green-500 hover:bg-green-50 text-green-600 hover:text-green-700 rounded-xl"
                 >
                   <Phone className="w-4 h-4 mr-2" />
-                  06 70 217 885
+                  {siteSettings.phoneNumber}
                 </Button>
                 <Button 
                   onClick={() => {
@@ -566,13 +693,10 @@ function App() {
         <div className="container mx-auto text-center relative z-10">
           <div className="mb-8 animate-fade-in-up">
             <h2 className="text-6xl md:text-7xl font-bold text-gray-800 mb-6 leading-tight">
-              Találd meg a tökéletes{' '}
-              <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent animate-gradient">
-                társadat
-              </span>
+              {pageTexts.heroTitle}
             </h2>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Professzionális kutyatenyésztés szeretettel és gondossággal. Maltipoo, Uszkár, Cavapoo és Goldendoodle fajtákra specializálódtunk.
+              {pageTexts.heroSubtitle}
             </p>
           </div>
           
@@ -628,9 +752,9 @@ function App() {
       <section id="breeds" className="py-20 px-4 bg-white/50 backdrop-blur-md relative">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h3 className="text-5xl font-bold text-gray-800 mb-6">Fajtáink</h3>
+            <h3 className="text-5xl font-bold text-gray-800 mb-6">{pageTexts.breedsTitle}</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Minden fajtánk gondosan kiválasztott szülőktől származik, garantálva az egészséget és a kiváló temperamentumot.
+              {pageTexts.breedsSubtitle}
             </p>
           </div>
           
@@ -682,9 +806,9 @@ function App() {
       <section id="available" className="py-20 px-4 relative">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h3 className="text-5xl font-bold text-gray-800 mb-6">Eladó Kutyáink</h3>
+            <h3 className="text-5xl font-bold text-gray-800 mb-6">{pageTexts.availableTitle}</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Minden kiskutyánk szeretettel nevelkedik családi környezetben, biztosítva a legjobb szocializációt.
+              {pageTexts.availableSubtitle}
             </p>
           </div>
           
@@ -1019,7 +1143,7 @@ function App() {
                 <Button 
                   variant="outline" 
                   className="flex-1 border-2 border-orange-200 hover:bg-orange-50 rounded-xl py-4 text-lg"
-                  onClick={() => window.open('tel:+3670217885', '_self')}
+                  onClick={() => window.open(`tel:${siteSettings.phoneNumber}`, '_self')}
                 >
                   <Phone className="w-5 h-5 mr-3" />
                   Hívás Most!
@@ -1098,12 +1222,12 @@ function App() {
       {/* Admin Panel Modal */}
       {showAdminPanel && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
-          <Card className="w-full max-w-6xl max-h-[90vh] bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
+          <Card className="w-full max-w-7xl max-h-[95vh] bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle className="text-2xl font-bold text-white">Admin Panel</CardTitle>
-                  <CardDescription className="text-purple-100">Kutyák és foglalások kezelése</CardDescription>
+                  <CardTitle className="text-2xl font-bold text-white">Admin Panel - Teljes Irányítás</CardTitle>
+                  <CardDescription className="text-purple-100">Kutyák, foglalások, beállítások és szövegek kezelése</CardDescription>
                 </div>
                 <div className="flex space-x-2">
                   <Button 
@@ -1132,98 +1256,550 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Kutyák kezelése */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <Heart className="w-5 h-5 mr-2 text-purple-500" />
-                    Kutyák Kezelése
-                  </h3>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {availableDogs.map(dog => (
-                      <div key={dog.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <img src={dog.image} alt={dog.name} className="w-12 h-12 rounded-lg object-cover" />
-                            <div>
-                              <h4 className="font-semibold text-gray-800">{dog.name}</h4>
-                              <p className="text-sm text-gray-600">{dog.breed} - {dog.price}</p>
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingDog(dog)
-                                setEditDogForm({
-                                  name: dog.name,
-                                  breed: dog.breed,
-                                  age: dog.age,
-                                  price: dog.price,
-                                  image: dog.image,
-                                  description: dog.description,
-                                  gender: dog.gender,
-                                  vaccinated: dog.vaccinated,
-                                  microchipped: dog.microchipped,
-                                  weight: dog.weight,
-                                  parents: dog.parents,
-                                  temperament: dog.temperament,
-                                  specialFeatures: dog.specialFeatures,
-                                  category: dog.category
-                                })
-                                setShowEditDog(true)
-                              }}
-                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
-                            >
-                              <Edit className="w-3 h-3 mr-1" />
-                              Szerkesztés
-                            </Button>
-                            <Button 
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteDog(dog.id)}
-                              className="border-red-300 text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-3 h-3 mr-1" />
-                              Törlés
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            
+            {/* Tab Navigation */}
+            <div className="bg-gray-50 border-b border-gray-200">
+              <div className="flex space-x-1 p-4">
+                {[
+                  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                  { id: 'dogs', label: 'Kutyák', icon: '🐕' },
+                  { id: 'bookings', label: 'Foglalások', icon: '📅' },
+                  { id: 'settings', label: 'Beállítások', icon: '⚙️' },
+                  { id: 'texts', label: 'Szövegek', icon: '📝' },
+                  { id: 'times', label: 'Időpontok', icon: '🕐' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setAdminActiveTab(tab.id)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                      adminActiveTab === tab.id
+                        ? 'bg-purple-500 text-white shadow-lg'
+                        : 'text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <span className="mr-2">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                {/* Foglalások kezelése */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-purple-500" />
-                    Foglalások Kezelése
-                  </h3>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {Object.entries(bookedSlots).map(([date, times]) => (
-                      <div key={date} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <h4 className="font-semibold text-gray-800 mb-2">{formatDateForInput(date)}</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {times.map(time => (
-                            <Button 
-                              key={time}
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleCancelBooking(date, time)}
-                              className="border-red-300 text-red-600 hover:bg-red-50"
-                            >
-                              {time} <X className="w-3 h-3 ml-1" />
-                            </Button>
+            <div className="p-6 overflow-y-auto max-h-[calc(95vh-200px)]">
+              {/* Dashboard Tab */}
+              {adminActiveTab === 'dashboard' && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Dashboard - Áttekintés</h3>
+                  
+                  {/* Statisztikák */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-blue-100">Összes Kutya</p>
+                            <p className="text-3xl font-bold">{statistics.totalDogs}</p>
+                          </div>
+                          <Heart className="w-8 h-8 text-blue-200" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-green-100">Eladó Kutyák</p>
+                            <p className="text-3xl font-bold">{statistics.availableDogs}</p>
+                          </div>
+                          <Users className="w-8 h-8 text-green-200" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-orange-100">Aktív Foglalások</p>
+                            <p className="text-3xl font-bold">{statistics.activeBookings}</p>
+                          </div>
+                          <Calendar className="w-8 h-8 text-orange-200" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-purple-100">Havi Látogatók</p>
+                            <p className="text-3xl font-bold">{statistics.monthlyVisitors}</p>
+                          </div>
+                          <Eye className="w-8 h-8 text-purple-200" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Gyors műveletek */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Gyors Műveletek</h4>
+                        <div className="space-y-3">
+                          <Button 
+                            onClick={() => setShowAddDog(true)}
+                            className="w-full bg-green-500 hover:bg-green-600"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Új Kutya Hozzáadása
+                          </Button>
+                          <Button 
+                            onClick={() => setShowSiteSettings(true)}
+                            variant="outline"
+                            className="w-full"
+                          >
+                            <Settings className="w-4 h-4 mr-2" />
+                            Oldal Beállítások
+                          </Button>
+                          <Button 
+                            onClick={() => setShowTextEditor(true)}
+                            variant="outline"
+                            className="w-full"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Szövegek Szerkesztése
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Legutóbbi Foglalások</h4>
+                        <div className="space-y-2">
+                          {Object.entries(bookedSlots).slice(0, 5).map(([date, times]) => (
+                            <div key={date} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                              <span className="text-sm font-medium">{formatDateForInput(date)}</span>
+                              <span className="text-sm text-gray-600">{times.length} foglalás</span>
+                            </div>
                           ))}
                         </div>
-                      </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Rendszer Információk</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Elérhető időpontok:</span>
+                            <span className="font-medium">{timeSlots.length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Konverziós ráta:</span>
+                            <span className="font-medium">{statistics.conversionRate}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Admin bejelentkezve:</span>
+                            <span className="font-medium text-green-600">Igen</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
+              {/* Kutyák Tab */}
+              {adminActiveTab === 'dogs' && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-800">Kutyák Kezelése</h3>
+                    <Button 
+                      onClick={() => setShowAddDog(true)}
+                      className="bg-green-500 hover:bg-green-600"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Új Kutya Hozzáadása
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {availableDogs.map(dog => (
+                      <Card key={dog.id} className="hover:shadow-lg transition-all duration-300">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <img src={dog.image} alt={dog.name} className="w-16 h-16 rounded-lg object-cover" />
+                              <div>
+                                <h4 className="font-semibold text-gray-800 text-lg">{dog.name}</h4>
+                                <p className="text-sm text-gray-600">{dog.breed} - {dog.age}</p>
+                                <p className="text-orange-600 font-bold">{dog.price}</p>
+                              </div>
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingDog(dog)
+                                  setEditDogForm({
+                                    name: dog.name,
+                                    breed: dog.breed,
+                                    age: dog.age,
+                                    price: dog.price,
+                                    image: dog.image,
+                                    description: dog.description,
+                                    gender: dog.gender,
+                                    vaccinated: dog.vaccinated,
+                                    microchipped: dog.microchipped,
+                                    weight: dog.weight,
+                                    parents: dog.parents,
+                                    temperament: dog.temperament,
+                                    specialFeatures: dog.specialFeatures,
+                                    category: dog.category
+                                  })
+                                  setShowEditDog(true)
+                                }}
+                                className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              >
+                                <Edit className="w-3 h-3 mr-1" />
+                                Szerkesztés
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteDog(dog.id)}
+                                className="border-red-300 text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                Törlés
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Foglalások Tab */}
+              {adminActiveTab === 'bookings' && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Foglalások Kezelése</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {Object.entries(bookedSlots).map(([date, times]) => (
+                      <Card key={date} className="hover:shadow-lg transition-all duration-300">
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-semibold text-gray-800 text-lg">{formatDateForInput(date)}</h4>
+                            <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+                              {times.length} foglalás
+                            </Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {times.map(time => (
+                              <Button 
+                                key={time}
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCancelBooking(date, time)}
+                                className="border-red-300 text-red-600 hover:bg-red-50"
+                              >
+                                {time} <X className="w-3 h-3 ml-1" />
+                              </Button>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Beállítások Tab */}
+              {adminActiveTab === 'settings' && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Oldal Beállítások</h3>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Oldal Címe</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.siteTitle}
+                              onChange={(e) => setSiteSettings({...siteSettings, siteTitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Alcím</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.siteSubtitle}
+                              onChange={(e) => setSiteSettings({...siteSettings, siteSubtitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Telefonszám</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.phoneNumber}
+                              onChange={(e) => setSiteSettings({...siteSettings, phoneNumber: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Email</label>
+                            <input 
+                              type="email"
+                              value={siteSettings.email}
+                              onChange={(e) => setSiteSettings({...siteSettings, email: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Cím</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.address}
+                              onChange={(e) => setSiteSettings({...siteSettings, address: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Nyitvatartás</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.openingHours}
+                              onChange={(e) => setSiteSettings({...siteSettings, openingHours: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">WhatsApp Szám</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.whatsappNumber}
+                              onChange={(e) => setSiteSettings({...siteSettings, whatsappNumber: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Instagram</label>
+                            <input 
+                              type="text"
+                              value={siteSettings.instagramHandle}
+                              onChange={(e) => setSiteSettings({...siteSettings, instagramHandle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <Button 
+                          onClick={() => handleUpdateSiteSettings(siteSettings)}
+                          className="bg-purple-500 hover:bg-purple-600"
+                        >
+                          Beállítások Mentése
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Szövegek Tab */}
+              {adminActiveTab === 'texts' && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Szövegek Szerkesztése</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Oldal Szövegek</h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Főoldal Cím</label>
+                            <div className="flex">
+                              <input 
+                                type="text"
+                                value={pageTexts.heroTitle}
+                                onChange={(e) => setPageTexts({...pageTexts, heroTitle: e.target.value})}
+                                className="flex-1 p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              />
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditText('heroTitle', pageTexts.heroTitle)}
+                                className="ml-2"
+                              >
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Főoldal Alcím</label>
+                            <textarea 
+                              value={pageTexts.heroSubtitle}
+                              onChange={(e) => setPageTexts({...pageTexts, heroSubtitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 h-20"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Fajták Címe</label>
+                            <input 
+                              type="text"
+                              value={pageTexts.breedsTitle}
+                              onChange={(e) => setPageTexts({...pageTexts, breedsTitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Eladó Kutyák Címe</label>
+                            <input 
+                              type="text"
+                              value={pageTexts.availableTitle}
+                              onChange={(e) => setPageTexts({...pageTexts, availableTitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Foglalás Szövegek</h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Foglalás Címe</label>
+                            <input 
+                              type="text"
+                              value={pageTexts.bookingTitle}
+                              onChange={(e) => setPageTexts({...pageTexts, bookingTitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Sikeres Foglalás Üzenet</label>
+                            <textarea 
+                              value={pageTexts.bookingSuccess}
+                              onChange={(e) => setPageTexts({...pageTexts, bookingSuccess: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 h-20"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Kapcsolat Címe</label>
+                            <input 
+                              type="text"
+                              value={pageTexts.contactTitle}
+                              onChange={(e) => setPageTexts({...pageTexts, contactTitle: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold mb-2">Kapcsolat Szöveg</label>
+                            <textarea 
+                              value={pageTexts.contactText}
+                              onChange={(e) => setPageTexts({...pageTexts, contactText: e.target.value})}
+                              className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 h-20"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="mt-6">
+                    <Button 
+                      onClick={() => handleUpdatePageTexts(pageTexts)}
+                      className="bg-purple-500 hover:bg-purple-600"
+                    >
+                      Szövegek Mentése
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Időpontok Tab */}
+              {adminActiveTab === 'times' && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Időpontok Kezelése</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Elérhető Időpontok</h4>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {timeSlots.map(time => (
+                            <Badge 
+                              key={time}
+                              variant="secondary"
+                              className="flex items-center space-x-2 bg-green-100 text-green-700"
+                            >
+                              <span>{time}</span>
+                              <button
+                                onClick={() => handleRemoveTimeSlot(time)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex space-x-2">
+                          <input 
+                            type="time"
+                            id="new-time"
+                            className="p-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          />
+                          <Button 
+                            onClick={() => {
+                              const time = document.getElementById('new-time').value;
+                              if (time) {
+                                handleAddTimeSlot(time);
+                                document.getElementById('new-time').value = '';
+                              }
+                            }}
+                            className="bg-green-500 hover:bg-green-600"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Hozzáadás
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Foglalt Időpontok</h4>
+                        <div className="space-y-3">
+                          {Object.entries(bookedSlots).map(([date, times]) => (
+                            <div key={date} className="p-3 bg-red-50 rounded-lg border border-red-200">
+                              <h5 className="font-semibold text-red-800 mb-2">{formatDateForInput(date)}</h5>
+                              <div className="flex flex-wrap gap-2">
+                                {times.map(time => (
+                                  <Badge 
+                                    key={time}
+                                    variant="secondary"
+                                    className="bg-red-100 text-red-700"
+                                  >
+                                    {time}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -1239,10 +1815,10 @@ function App() {
               <div className="relative flex justify-between items-start">
                 <div className="flex-1">
                   <CardTitle className="text-xl sm:text-2xl font-bold text-white mb-1 drop-shadow-lg">
-                    Időpont Foglalása
+                    {pageTexts.bookingTitle}
                   </CardTitle>
                   <CardDescription className="text-orange-100 text-sm sm:text-base font-medium">
-                    Foglaljon időpontot kiskutyáink megtekintésére
+                    {pageTexts.bookingSubtitle}
                   </CardDescription>
                 </div>
                 <Button 
@@ -1294,7 +1870,7 @@ function App() {
                       value={bookingForm.preferred_time}
                       onChange={(e) => setBookingForm({...bookingForm, preferred_time: e.target.value})}
                     >
-                                                      {['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'].map(time => {
+                                                      {timeSlots.map(time => {
                         const isBooked = bookedSlots[bookingForm.preferred_date]?.includes(time);
                         return (
                           <option 
@@ -1621,6 +2197,58 @@ function App() {
                 </Button>
               </div>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Szöveg Szerkesztő Modal */}
+      {showTextEditor && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 modal-overlay animate-in fade-in duration-300">
+          <Card className="w-full max-w-2xl bg-white/98 backdrop-blur-xl border-0 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">Szöveg Szerkesztése</CardTitle>
+                  <CardDescription className="text-purple-100">Módosítsa a kiválasztott szöveget</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowTextEditor(false)}
+                  className="border-white/30 text-white hover:bg-white/20"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Szöveg</label>
+                  <textarea 
+                    className="w-full p-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 h-32 resize-none"
+                    placeholder="Írja be a szöveget..."
+                    value={editingText}
+                    onChange={(e) => setEditingText(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowTextEditor(false)}
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                  >
+                    Mégse
+                  </Button>
+                  <Button 
+                    className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                    onClick={handleSaveText}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Mentés
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
           </Card>
         </div>
       )}
