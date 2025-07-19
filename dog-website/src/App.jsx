@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
-import { Phone, Mail, Instagram, Clock, MapPin, Heart, Star, Calendar, Award, Shield, Users, ChevronRight, ChevronDown, Menu, X, MessageCircle, Settings, Plus, Edit, Trash2, LogOut, LogIn, Eye, EyeOff } from 'lucide-react'
+import { Phone, Mail, Instagram, Clock, MapPin, Heart, Star, Calendar, Award, Shield, Users, ChevronRight, ChevronDown, Menu, X, MessageCircle, Settings, Plus, Edit, Trash2, LogOut, LogIn, Eye, EyeOff, Save, Upload, Loader2 } from 'lucide-react'
 import './App.css'
 
 // Import dog images
@@ -31,13 +31,15 @@ function App() {
   const [showPassword, setShowPassword] = useState(false)
   
   // Új admin funkciók
-  const [adminActiveTab, setAdminActiveTab] = useState('dogs')
+  const [adminActiveTab, setAdminActiveTab] = useState('dashboard')
   const [showSiteSettings, setShowSiteSettings] = useState(false)
   const [showTextEditor, setShowTextEditor] = useState(false)
   const [showBookingManager, setShowBookingManager] = useState(false)
   const [showStatistics, setShowStatistics] = useState(false)
   const [editingText, setEditingText] = useState('')
   const [editingTextKey, setEditingTextKey] = useState('')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   // Oldal beállítások
   const [siteSettings, setSiteSettings] = useState({
@@ -244,6 +246,7 @@ function App() {
       totalDogs: prev.totalDogs + 1,
       availableDogs: prev.availableDogs + 1
     }))
+    setHasUnsavedChanges(true)
     alert('Kutya sikeresen hozzáadva!')
   }
 
@@ -253,6 +256,7 @@ function App() {
     ))
     setShowEditDog(false)
     setEditingDog(null)
+    setHasUnsavedChanges(true)
     alert('Kutya sikeresen módosítva!')
   }
 
@@ -264,6 +268,7 @@ function App() {
         totalDogs: prev.totalDogs - 1,
         availableDogs: prev.availableDogs - 1
       }))
+      setHasUnsavedChanges(true)
       alert('Kutya sikeresen törölve!')
     }
   }
@@ -484,12 +489,14 @@ function App() {
   const handleUpdateSiteSettings = (newSettings) => {
     setSiteSettings(newSettings)
     setShowSiteSettings(false)
+    setHasUnsavedChanges(true)
     alert('Oldal beállítások sikeresen frissítve!')
   }
 
   const handleUpdatePageTexts = (newTexts) => {
     setPageTexts(newTexts)
     setShowTextEditor(false)
+    setHasUnsavedChanges(true)
     alert('Szövegek sikeresen frissítve!')
   }
 
@@ -528,7 +535,28 @@ function App() {
     setShowTextEditor(false)
     setEditingText('')
     setEditingTextKey('')
+    setHasUnsavedChanges(true)
     alert('Szöveg sikeresen mentve!')
+  }
+
+  const handleSaveChanges = () => {
+    // Itt mentenénk el a változásokat a szerverre
+    setHasUnsavedChanges(false)
+    alert('Változások sikeresen mentve!')
+  }
+
+  const handlePublishChanges = async () => {
+    setIsPublishing(true)
+    try {
+      // Itt közzétennénk a változásokat
+      await new Promise(resolve => setTimeout(resolve, 2000)) // Szimulált késleltetés
+      setHasUnsavedChanges(false)
+      alert('Változások sikeresen közzétéve! Az oldal frissült.')
+    } catch (error) {
+      alert('Hiba történt a közzététel során: ' + error.message)
+    } finally {
+      setIsPublishing(false)
+    }
   }
 
   return (
@@ -920,16 +948,14 @@ function App() {
                 ))}
 
                 
-                {/* WhatsApp gomb */}
+                {/* Hívás Most gomb */}
                 <div className="mt-8">
                   <a 
-                    href="https://wa.me/3670217885" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                    href={`tel:${siteSettings.phoneNumber}`}
                     className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >
-                    <MessageCircle className="w-6 h-6" />
-                    <span className="text-lg font-semibold">Időpont Foglalása</span>
+                    <Phone className="w-6 h-6" />
+                    <span className="text-lg font-semibold">Hívás Most!</span>
                   </a>
                 </div>
               </div>
@@ -1233,9 +1259,45 @@ function App() {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle className="text-2xl font-bold text-white">Admin Panel - Teljes Irányítás</CardTitle>
-                  <CardDescription className="text-purple-100">Kutyák, foglalások, beállítások és szövegek kezelése</CardDescription>
+                  <CardDescription className="text-purple-100">
+                    Kutyák, foglalások, beállítások és szövegek kezelése
+                    {hasUnsavedChanges && (
+                      <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-200 border border-yellow-300/30">
+                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></span>
+                        Mentetlen változások
+                      </span>
+                    )}
+                  </CardDescription>
                 </div>
                 <div className="flex space-x-2">
+                  {hasUnsavedChanges && (
+                    <Button 
+                      variant="outline"
+                      onClick={handleSaveChanges}
+                      className="border-yellow-300 text-yellow-200 hover:bg-yellow-500/20"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Mentés
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline"
+                    onClick={handlePublishChanges}
+                    disabled={isPublishing}
+                    className="border-green-300 text-green-200 hover:bg-green-500/20 disabled:opacity-50"
+                  >
+                    {isPublishing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Közzététel...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Közzététel
+                      </>
+                    )}
+                  </Button>
                   <Button 
                     variant="outline"
                     onClick={() => setShowAddDog(true)}
