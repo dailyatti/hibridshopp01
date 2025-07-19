@@ -1,8 +1,13 @@
 [build]
-publish = "dog-website/dist"
-command = "cd dog-website && npm run build"
+  command = "cd dog-website && npm ci && npm run build"
+  publish = "dog-website/dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200
